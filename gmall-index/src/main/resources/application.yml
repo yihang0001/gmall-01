@@ -1,0 +1,13 @@
+server:
+  port: 8087
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+  redis:
+    host: 101.37.77.254
+    password: Cai19970709
+    port: 7777
+ribbon:
+  ReadTimeout: 10000

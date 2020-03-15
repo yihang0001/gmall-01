@@ -1,0 +1,18 @@
+server:
+  port: 8086
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+  elasticsearch:
+    rest:
+      uris: http://101.37.77.254:9200
+  jackson:
+    default-property-inclusion: non_null
+  rabbitmq:
+    host: 101.37.77.254
+    virtual-host: /gmall
+    username: gmall
+    password: 19970709
+    port: 7672
