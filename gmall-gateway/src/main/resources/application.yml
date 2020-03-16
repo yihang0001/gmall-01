@@ -14,16 +14,35 @@ spring:
         - id: sms-route
           uri: lb://sms-service
           predicates:
-              - Path=/sms/**
+            - Path=/sms/**
         - id: wms-route
           uri: lb://wms-service
           predicates:
-              - Path=/wms/**
+            - Path=/wms/**
         - id: ums-route
           uri: lb://ums-service
           predicates:
-              - Path=/ums/**
+            - Path=/ums/**
         - id: oms-route
           uri: lb://oms-service
+          filters:
+            - Auth
           predicates:
-              - Path=/oms/**
+            - Path=/oms/**
+        - id: index-route
+          uri: lb://index-service
+          predicates:
+            - Path=/api/index/**
+          filters:
+            - RewritePath=/api(?<segment>/?.*),$\{segment}
+        - id: auth-route
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+          filters:
+            - RewritePath=/api(?<segment>/?.*),$\{segment}
+
+auth:
+  jwt:
+    publicKeyPath: D:\\Development\\sercet\\rsa.pub
+    cookieName: GMALL_TOKEN

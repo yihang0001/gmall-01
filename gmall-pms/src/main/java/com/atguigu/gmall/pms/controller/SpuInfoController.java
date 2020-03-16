@@ -1,14 +1,20 @@
 package com.atguigu.gmall.pms.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
 import com.atguigu.core.bean.PageVo;
 import com.atguigu.core.bean.QueryCondition;
 import com.atguigu.core.bean.Resp;
+import com.atguigu.gmall.pms.entity.SkuInfoEntity;
+import com.atguigu.gmall.pms.vo.SpuInfoVo;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.checkerframework.checker.units.qual.A;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +38,26 @@ import com.atguigu.gmall.pms.service.SpuInfoService;
 public class SpuInfoController {
     @Autowired
     private SpuInfoService spuInfoService;
+
+    @Autowired
+    private AmqpTemplate amqpTemplate;
+
+    @GetMapping
+    public Resp<PageVo> querySpuByCidPage(QueryCondition queryCondition,@RequestParam(value = "catId",defaultValue = "0")Long cid){
+
+        PageVo pageVo =spuInfoService.querySpuByCidPage(queryCondition,cid);
+
+        return Resp.ok(pageVo);
+    }
+
+    @ApiOperation("分页查询接口方法")
+    @PostMapping("/page")
+    public Resp<List<SpuInfoEntity>> querySpuPage(@RequestBody QueryCondition queryCondition) {
+        PageVo page = spuInfoService.queryPage(queryCondition);
+
+        return Resp.ok((List<SpuInfoEntity>)page.getList());
+    }
+
 
     /**
      * 列表
@@ -64,8 +90,9 @@ public class SpuInfoController {
     @ApiOperation("保存")
     @PostMapping("/save")
     @PreAuthorize("hasAuthority('pms:spuinfo:save')")
-    public Resp<Object> save(@RequestBody SpuInfoEntity spuInfo){
-		spuInfoService.save(spuInfo);
+    public Resp<Object> save(@RequestBody SpuInfoVo spuInfoVo){
+
+		spuInfoService.bigsave(spuInfoVo);
 
         return Resp.ok(null);
     }
@@ -79,6 +106,7 @@ public class SpuInfoController {
     public Resp<Object> update(@RequestBody SpuInfoEntity spuInfo){
 		spuInfoService.updateById(spuInfo);
 
+		this.amqpTemplate.convertAndSend("PMS-SPU-EXCHANGE","item.update",spuInfo.getId());
         return Resp.ok(null);
     }
 
